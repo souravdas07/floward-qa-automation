@@ -1,0 +1,35 @@
+stages:
+  - build
+  - test
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cache/*
+    - cache/Cypress
+    - node_modules
+    - build
+
+install:
+  image: cypress/browsers:node16.14.0-slim-chrome99-ff97
+  stage: build
+  script:
+    - npm install
+    - npx cypress cache path
+    - npx cypress cache list
+
+qa:regression:english:
+  image: cypress/browsers:node16.14.0-slim-chrome99-ff97
+  stage: test
+  script:
+    - npm run cy:test
+  artifacts:
+    when: always
+    paths:
+      - /reports
+      - /screenshots
+    expire_in: 1 week
